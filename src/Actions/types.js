@@ -1,0 +1,3 @@
+export const GET_BATCH = "GET_BATCH";
+export const GET_BATCH_PENDING = "GET_BATCH_PENDING";
+export const GET_BATCH_ERROR = "GET_BATCH_ERROR";
