@@ -3,11 +3,11 @@
 const labelXml =
   '<?xml version="1.0" encoding="utf-8"?>\
     <DieCutLabel Version="8.0" Units="twips">\
-      <PaperOrientation>Landscape</PaperOrientation>\
-      <Id>Small30332</Id>\
-      <PaperName>30332 1 in x 1 in</PaperName>\
+      <PaperOrientation>Portrait</PaperOrientation>\
+      <Id>Small30347</Id>\
+      <PaperName>30347 1 in x 1-1/2 in</PaperName>\
       <DrawCommands>\
-        <RoundRectangle X="0" Y="0" Width="1581" Height="5040" Rx="270" Ry="270" />\
+        <RoundRectangle X="0" Y="0" Width="2000" Height="5040" Rx="270" Ry="270" />\
       </DrawCommands>\
       <ObjectInfo>\
         <BarcodeObject>\
@@ -26,10 +26,38 @@ const labelXml =
           <CheckSumFont Family="Arial" Size="8" Bold="False" Italic="False" Underline="False" Strikeout="False" />\
           <TextEmbedding>None</TextEmbedding>\
           <ECLevel>0</ECLevel>\
-          <HorizontalAlignment>Left</HorizontalAlignment>\
+          <VerticalAlignment>Center</VerticalAlignment>\
+          <HorizontalAlignment>Center</HorizontalAlignment>\
           <QuietZonesPadding Left="0" Top="0" Right="0" Bottom="0" />\
         </BarcodeObject>\
-        <Bounds X="331" Y="57.9999999999999" Width="2880" Height="1435" />\
+        <Bounds X="0" Y="0" Width="2880" Height="1435" />\
+      </ObjectInfo>\
+      <ObjectInfo>\
+        <TextObject>\
+          <Name>Text</Name>\
+          <ForeColor Alpha="255" Red="0" Green="0" Blue="0" />\
+          <BackColor Alpha="0" Red="255" Green="255" Blue="255" />\
+          <LinkedObjectName></LinkedObjectName>\
+          <Rotation>Rotation0</Rotation>\
+          <IsMirrored>False</IsMirrored>\
+          <IsVariable>False</IsVariable>\
+          <HorizontalAlignment>Center</HorizontalAlignment>\
+          <VerticalAlignment>Bottom</VerticalAlignment>\
+          <TextFitMode>AlwaysFit</TextFitMode>\
+          <UseFullFontHeight>False</UseFullFontHeight>\
+          <Verticalized>False</Verticalized>\
+          <StyledText>\
+            <Element>\
+              <String></String>\
+                <Attributes>\
+                  <Font Family="Arial" Size="5" Bold="False" Italic="False"\
+                    Underline="False" Strikeout="False" />\
+                  <ForeColor Alpha="255" Red="0" Green="0" Blue="0" />\
+                </Attributes>\
+            </Element>\
+          </StyledText>\
+        </TextObject>\
+        <Bounds X="0" Y="0" Width="2900" Height="1400" />\
       </ObjectInfo>\
     </DieCutLabel>';
 
@@ -38,21 +66,36 @@ export const loadPrinters = async () => {
   return printers;
 };
 
-export const generateLabelImage = async (vials, start, end) => {
-  const qrLabel = window.dymo.label.framework.openLabelXml(labelXml);
-  const labelResults = [];
-  for (let i = start; i <= end; i++) {
-    qrLabel.setObjectText("Barcode", vials[i]);
-    const pngData = await window.dymo.label.framework.renderLabelAsync(
-      qrLabel,
-      "",
-      ""
-    );
-    const lab = { id: vials[i], png: "data:image/png;base64," + pngData };
-    labelResults.push(lab);
-  }
+export const generateLabelImage = async (batchId, vials, start, end) => {
+  try {
+    if (start > end) {
+      throw "Start index is greater than Ending index";
+    }
 
-  return labelResults;
+    const qrLabel = window.dymo.label.framework.openLabelXml(labelXml);
+    const labelResults = [];
+    for (let i = start; i <= end; i++) {
+      qrLabel.setObjectText("Text", vials[i]);
+      qrLabel.setObjectText(
+        "Barcode",
+        "{Batch:" +
+          batchId.toString() +
+          ", Vial_Serial_Number:" +
+          vials[i] +
+          "}"
+      );
+      const pngData = await window.dymo.label.framework.renderLabelAsync(
+        qrLabel,
+        "",
+        ""
+      );
+      const lab = { id: vials[i], png: "data:image/png;base64," + pngData };
+      labelResults.push(lab);
+    }
+    return labelResults;
+  } catch (error) {
+    throw new Error(error);
+  }
 };
 
 export const printSingleLabel = async (labelText, printerName) => {

@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { reduxForm, Field, formValueSelector } from "redux-form";
-import { getLabels } from "../../Actions";
+import { getLabels, clearLabelRenderings } from "../../Actions";
 
 class LabelForm extends React.Component {
   componentDidMount() {
@@ -9,6 +9,7 @@ class LabelForm extends React.Component {
   }
   onSubmit = (formValues) => {
     console.log(formValues);
+    this.props.onSubmit(formValues);
   };
 
   handleRecipeChange = (val) => {
@@ -19,6 +20,8 @@ class LabelForm extends React.Component {
     const endSerialNum =
       parseInt(currentRecipe.display_value.split(",")[1]) - 1;
     this.props.change("endSerialNum", endSerialNum);
+    this.props.change("startSerialNum", 0);
+    this.props.clearLabelRenderings();
   };
 
   renderRecipeDropdown({ input, meta, label, options, handleChange }) {
@@ -41,6 +44,22 @@ class LabelForm extends React.Component {
             return (
               <option key={opt.ID} value={opt.ID}>
                 {recipeData[0] + " - " + recipeData[1] + " Vials"}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+    );
+  }
+  renderPrinterDropdown({ input, meta, label, options }) {
+    return (
+      <div class="field">
+        <label>{label}</label>
+        <select {...input}>
+          {options.map((opt) => {
+            return (
+              <option key={opt} value={opt}>
+                {opt}
               </option>
             );
           })}
@@ -79,7 +98,7 @@ class LabelForm extends React.Component {
           />
           <Field
             name="printer"
-            component={this.renderDropdown}
+            component={this.renderPrinterDropdown}
             label="Printer"
             options={this.props.printers.map((p) => p.name)}
           />
@@ -115,4 +134,6 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, { getLabels })(LabelForm);
+export default connect(mapStateToProps, { getLabels, clearLabelRenderings })(
+  LabelForm
+);

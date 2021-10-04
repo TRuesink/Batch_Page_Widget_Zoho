@@ -6,9 +6,13 @@ import {
   GET_PRINTERS_ERROR,
   GET_PRINTERS,
   GET_LABELS,
+  GET_LABEL_RENDERINGS,
+  GET_LABEL_RENDERINGS_PENDING,
+  GET_LABEL_RENDERINGS_ERROR,
+  CLEAR_RENDERINGS,
 } from "./types";
 import { getZohoQueryParams, getZohoRecord } from "../Services/zohoService";
-import { loadPrinters } from "../Services/dymoService";
+import { generateLabelImage, loadPrinters } from "../Services/dymoService";
 
 // ---------------------- GET BATCH ACTION -------------------------------
 export const getBatch = () => {
@@ -47,4 +51,24 @@ export const getLabels = (recipe) => {
     labels.push(serialNum + "_" + i);
   }
   return { type: GET_LABELS, payload: labels };
+};
+
+export const clearLabelRenderings = () => {
+  return { type: CLEAR_RENDERINGS };
+};
+
+export const getLabelRenderings = (batchId, vials, start, end) => {
+  return async (dispatch) => {
+    try {
+      dispatch({ type: GET_LABEL_RENDERINGS_PENDING });
+      const labelImages = await generateLabelImage(batchId, vials, start, end);
+      console.log(labelImages);
+      dispatch({ type: GET_LABEL_RENDERINGS, payload: labelImages });
+    } catch (error) {
+      dispatch({
+        type: GET_LABEL_RENDERINGS_ERROR,
+        payload: error.message || error,
+      });
+    }
+  };
 };
