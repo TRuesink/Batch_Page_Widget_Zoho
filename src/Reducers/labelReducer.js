@@ -4,6 +4,7 @@ import {
   GET_LABEL_RENDERINGS_PENDING,
   GET_LABEL_RENDERINGS_ERROR,
   CLEAR_RENDERINGS,
+  GET_LABEL_RENDERINGS_NO_ERROR,
 } from "../Actions/types";
 
 const INIT_STATE = {
@@ -35,6 +36,13 @@ const labelReducer = (state = INIT_STATE, action) => {
         success: false,
         pending: false,
         error: action.payload,
+      };
+    case GET_LABEL_RENDERINGS_NO_ERROR:
+      return {
+        data: state.data,
+        success: false,
+        pending: false,
+        error: null,
       };
     case CLEAR_RENDERINGS:
       return {

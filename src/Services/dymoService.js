@@ -66,24 +66,17 @@ export const loadPrinters = async () => {
   return printers;
 };
 
-export const generateLabelImage = async (batchId, vials, start, end) => {
+export const generateLabelImage = async (vials, start, end) => {
   try {
     if (start > end) {
-      throw "Start index is greater than Ending index";
+      throw new Error("Start index is greater than Ending index");
     }
 
     const qrLabel = window.dymo.label.framework.openLabelXml(labelXml);
     const labelResults = [];
     for (let i = start; i <= end; i++) {
       qrLabel.setObjectText("Text", vials[i]);
-      qrLabel.setObjectText(
-        "Barcode",
-        "{Batch:" +
-          batchId.toString() +
-          ", Vial_Serial_Number:" +
-          vials[i] +
-          "}"
-      );
+      qrLabel.setObjectText("Barcode", vials[i]);
       const pngData = await window.dymo.label.framework.renderLabelAsync(
         qrLabel,
         "",
@@ -103,7 +96,7 @@ export const printSingleLabel = async (labelText, printerName) => {
     const qrLabel = window.dymo.label.framework.openLabelXml(labelXml);
     qrLabel.setObjectText("Barcode", labelText);
     if (printerName === "") {
-      throw "No printer selected! Please select a valid printer";
+      throw new Error("No printer selected! Please select a valid printer");
     }
     await window.dymo.label.framework.printLabelAsync(
       printerName,
@@ -121,7 +114,7 @@ export const printSingleLabel = async (labelText, printerName) => {
 export const printAllLabels = async (labelTextArray, printerName) => {
   try {
     if (printerName === "") {
-      throw "No printer selected! Please select a valid printer";
+      throw new Error("No printer selected! Please select a valid printer");
     }
     const qrLabel = window.dymo.label.framework.openLabelXml(labelXml);
     const labelSetBuilder = new window.dymo.label.framework.LabelSetBuilder();

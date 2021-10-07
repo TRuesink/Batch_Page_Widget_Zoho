@@ -9,10 +9,14 @@ class LabelList extends React.Component {
         <div style={{ padding: "25px" }} className="ui four doubling cards">
           {Object.values(labels.data).map((lab) => {
             return (
-              <div className="card">
+              <div className="card" key={lab.id}>
                 <div className="content">
                   <div className="image">
-                    <img className="ui small image" src={lab.png} />
+                    <img
+                      className="ui small image"
+                      src={lab.png}
+                      alt={lab.id}
+                    />
                   </div>
                 </div>
                 <div className="ui bottom attached button">

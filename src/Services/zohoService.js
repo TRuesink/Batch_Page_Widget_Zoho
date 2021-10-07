@@ -11,12 +11,28 @@ export const getZohoRecord = async (reportName, id) => {
   };
   try {
     const response = await window.ZOHO.CREATOR.API.getRecordById(recordConfig);
-    console.log(response);
     const batch = response.data;
     return batch;
   } catch (error) {
     throw new Error(
       `Could not fetch Record. Contact administrator for assistance. ERROR: ${error.responseText}`
+    );
+  }
+};
+
+export const getZohoRecords = async (reportName, criteria) => {
+  try {
+    const config = {
+      reportName: reportName,
+      criteria: criteria,
+      page: 1,
+      pageSize: 150,
+    };
+    const records = await window.ZOHO.CREATOR.API.getAllRecords(config);
+    return records.data;
+  } catch (error) {
+    throw new Error(
+      `Could not fetch records from ${reportName} with criteria ${criteria}. ERROR MESSAGE: ${error.responseText}`
     );
   }
 };

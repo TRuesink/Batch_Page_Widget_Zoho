@@ -1,11 +1,11 @@
 import React from "react";
 import { connect } from "react-redux";
 import { reduxForm, Field, formValueSelector } from "redux-form";
-import { getLabels, clearLabelRenderings } from "../../Actions";
+import { clearLabelRenderings, getVials } from "../../Actions";
 
 class LabelForm extends React.Component {
   componentDidMount() {
-    this.props.getLabels(this.props.recipes[0]);
+    this.props.getVials(this.props.recipes[0].ID);
   }
   onSubmit = (formValues) => {
     console.log(formValues);
@@ -16,7 +16,7 @@ class LabelForm extends React.Component {
     const currentRecipe = this.props.recipes.filter((rec) => {
       return rec.ID === val.toString();
     })[0];
-    this.props.getLabels(currentRecipe);
+    this.props.getVials(val);
     const endSerialNum =
       parseInt(currentRecipe.display_value.split(",")[1]) - 1;
     this.props.change("endSerialNum", endSerialNum);
@@ -84,8 +84,12 @@ class LabelForm extends React.Component {
     );
   }
 
-  renderInput({ input, meta, label }) {}
   render() {
+    const vials = this.props.vials.success
+      ? Object.values(this.props.vials.data).map((v) => {
+          return v.Vial_Serial_Number;
+        })
+      : ["loaindg"];
     return (
       <div className="ui segment">
         <form class="ui form" onSubmit={this.props.handleSubmit(this.onSubmit)}>
@@ -106,15 +110,15 @@ class LabelForm extends React.Component {
             name="startSerialNum"
             component={this.renderDropdown}
             label="Starting Serial #"
-            options={this.props.dymo.labels}
+            options={vials}
           />
           <Field
             name="endSerialNum"
             component={this.renderDropdown}
             label="Ending Serial Number"
-            options={this.props.dymo.labels}
+            options={vials}
           />
-          <button className="ui button">Show Labels</button>
+          <button className="ui button blue fluid">Show Labels</button>
         </form>
       </div>
     );
@@ -123,6 +127,7 @@ class LabelForm extends React.Component {
 
 LabelForm = reduxForm({
   form: "labelForm",
+  enableReinitialize: true,
 })(LabelForm);
 
 const selector = formValueSelector("labelForm");
@@ -130,10 +135,11 @@ const selector = formValueSelector("labelForm");
 const mapStateToProps = (state) => {
   return {
     recipeID: selector(state, "recipe"),
-    dymo: state.dymo,
+    vials: state.vials,
   };
 };
 
-export default connect(mapStateToProps, { getLabels, clearLabelRenderings })(
-  LabelForm
-);
+export default connect(mapStateToProps, {
+  clearLabelRenderings,
+  getVials,
+})(LabelForm);

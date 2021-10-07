@@ -1,8 +1,9 @@
+import _ from "lodash";
 import {
-  GET_BATCH,
-  GET_BATCH_PENDING,
-  GET_BATCH_ERROR,
-  GET_BATCH_NO_ERROR,
+  GET_VIALS,
+  GET_VIALS_PENDING,
+  GET_VIALS_ERROR,
+  GET_VIALS_NO_ERROR,
 } from "../Actions/types";
 
 const INIT_STATE = {
@@ -12,30 +13,30 @@ const INIT_STATE = {
   error: null,
 };
 
-const batchReducer = (state = INIT_STATE, action) => {
+const vialReducer = (state = INIT_STATE, action) => {
   switch (action.type) {
-    case GET_BATCH:
+    case GET_VIALS:
       return {
-        data: action.payload,
+        data: { ..._.mapKeys(action.payload, "ID") },
         success: true,
         pending: false,
         error: null,
       };
-    case GET_BATCH_PENDING:
+    case GET_VIALS_PENDING:
       return {
         data: state.data,
         success: false,
         pending: true,
         error: null,
       };
-    case GET_BATCH_ERROR:
+    case GET_VIALS_ERROR:
       return {
         data: state.data,
         success: false,
         pending: false,
         error: action.payload,
       };
-    case GET_BATCH_NO_ERROR:
+    case GET_VIALS_NO_ERROR:
       return {
         data: state.data,
         success: false,
@@ -48,4 +49,4 @@ const batchReducer = (state = INIT_STATE, action) => {
   }
 };
 
-export default batchReducer;
+export default vialReducer;
